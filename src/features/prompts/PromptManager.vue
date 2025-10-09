@@ -200,7 +200,7 @@ onMounted(async () => {
             <option value="simple-flashcards">Simple Flashcards</option>
           </select>
           <p class="mt-2 text-xs text-base-content/70">
-            Generates flashcards with <code>{"{"}front, back{"}"}</code> fields.
+            Generates an array of flashcards with <code>{"{"}front, back{"}"}</code> fields.
           </p>
         </div>
         <div class="flex items-center gap-2">

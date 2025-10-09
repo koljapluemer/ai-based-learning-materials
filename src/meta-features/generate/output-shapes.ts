@@ -14,7 +14,7 @@ export interface OutputShapeDefinition {
 const simpleFlashcards: OutputShapeDefinition = {
   id: 'simple-flashcards',
   label: 'Simple Flashcards',
-  description: 'Creates concise flashcards with front/back text.',
+  description: 'Creates a list of concise flashcards with front/back text.',
   jsonSchema: {
     name: 'SimpleFlashcards',
     schema: {
@@ -34,12 +34,11 @@ const simpleFlashcards: OutputShapeDefinition = {
             }
           }
         }
-      },
-      required: ['flashcards']
+      }
     }
   },
   guidance:
-    'Produce concise Q/A flashcards that cover the most important facts. Each flashcard should have a descriptive front and an informative back.'
+    'Produce concise Q/A flashcards that cover the most important facts. Each flashcard should have a descriptive front and an informative back. Respond with a JSON object containing a "flashcards" array.'
 }
 
 export const outputShapes: Record<OutputShapeType, OutputShapeDefinition> = {
