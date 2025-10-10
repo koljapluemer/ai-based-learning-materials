@@ -16,7 +16,8 @@ const editingId = ref<string | null>(null)
 const form = ref({
   name: '',
   content: '',
-  outputShape: 'simple-flashcards'
+  outputShape: 'simple-flashcards',
+  minFlashcards: 5
 })
 
 const hasPrompts = computed(() => prompts.value.length > 0)
@@ -25,7 +26,8 @@ const resetForm = () => {
   form.value = {
     name: '',
     content: '',
-    outputShape: 'simple-flashcards'
+    outputShape: 'simple-flashcards',
+    minFlashcards: 5
   }
   editingId.value = null
 }
@@ -54,13 +56,15 @@ const submitForm = async () => {
       await props.repository.update(editingId.value, {
         name: form.value.name.trim(),
         content: form.value.content.trim(),
-        outputShape: form.value.outputShape as 'simple-flashcards'
+        outputShape: form.value.outputShape as 'simple-flashcards',
+        minFlashcards: form.value.minFlashcards
       })
     } else {
       await props.repository.create({
         name: form.value.name.trim(),
         content: form.value.content.trim(),
-        outputShape: form.value.outputShape as 'simple-flashcards'
+        outputShape: form.value.outputShape as 'simple-flashcards',
+        minFlashcards: form.value.minFlashcards
       })
     }
     await loadPrompts()
@@ -77,7 +81,8 @@ const editPrompt = (prompt: PromptRecord) => {
   form.value = {
     name: prompt.name,
     content: prompt.content,
-    outputShape: prompt.outputShape
+    outputShape: prompt.outputShape,
+    minFlashcards: prompt.minFlashcards
   }
 }
 
@@ -201,6 +206,21 @@ onMounted(async () => {
           </select>
           <p class="mt-2 text-xs text-base-content/70">
             Generates an array of flashcards with <code>{"{"}front, back{"}"}</code> fields.
+          </p>
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Minimum flashcards</span>
+          </label>
+          <input
+            v-model.number="form.minFlashcards"
+            type="number"
+            min="1"
+            max="50"
+            class="input input-bordered"
+          />
+          <p class="mt-2 text-xs text-base-content/70">
+            AI will generate at least this many flashcards.
           </p>
         </div>
         <div class="flex items-center gap-2">

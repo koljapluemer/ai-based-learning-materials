@@ -19,6 +19,7 @@ export interface PromptRecord {
   name: string
   content: string
   outputShape: OutputShapeType
+  minFlashcards: number
   createdAt: number
   updatedAt: number
 }
@@ -34,6 +35,23 @@ export class AppDb extends Dexie {
       materials: '@id, name, createdAt',
       prompts: '@id, name, createdAt'
     })
+
+    // Add minFlashcards field to existing prompts
+    this.version(2)
+      .stores({
+        materials: '@id, name, createdAt',
+        prompts: '@id, name, createdAt'
+      })
+      .upgrade((trans) => {
+        return trans
+          .table('prompts')
+          .toCollection()
+          .modify((prompt) => {
+            if (prompt.minFlashcards === undefined) {
+              prompt.minFlashcards = 5
+            }
+          })
+      })
 
     // Dexie Cloud can be configured via env vars; defaults to local-only usage.
     const databaseUrl = import.meta.env.VITE_DEXIE_CLOUD_URL

@@ -5,12 +5,14 @@ export interface PromptCreateInput {
   name: string
   content: string
   outputShape: OutputShapeType
+  minFlashcards: number
 }
 
 export interface PromptUpdateInput {
   name?: string
   content?: string
   outputShape?: OutputShapeType
+  minFlashcards?: number
 }
 
 export interface PromptRepository {

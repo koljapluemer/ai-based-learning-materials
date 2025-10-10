@@ -9,6 +9,7 @@ export interface OutputShapeDefinition {
     schema: unknown
   }
   guidance: string
+  createJsonSchema?: (minItems: number) => { name: string; schema: unknown }
 }
 
 const simpleFlashcards: OutputShapeDefinition = {
@@ -17,13 +18,15 @@ const simpleFlashcards: OutputShapeDefinition = {
   description: 'Creates a list of concise flashcards with front/back text.',
   jsonSchema: {
     name: 'SimpleFlashcards',
+    strict: true,
     schema: {
       type: 'object',
       additionalProperties: false,
+      required: ['flashcards'],
       properties: {
         flashcards: {
           type: 'array',
-          minItems: 1,
+          minItems: 5,
           items: {
             type: 'object',
             additionalProperties: false,
@@ -38,7 +41,31 @@ const simpleFlashcards: OutputShapeDefinition = {
     }
   },
   guidance:
-    'Produce concise Q/A flashcards that cover the most important facts. Each flashcard should have a descriptive front and an informative back. Respond with a JSON object containing a "flashcards" array.'
+    'Produce concise Q/A flashcards that cover the most important facts. Each flashcard should have a descriptive front and an informative back. Respond with a JSON object containing a "flashcards" array.',
+  createJsonSchema: (minItems: number) => ({
+    name: 'SimpleFlashcards',
+    strict: true,
+    schema: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['flashcards'],
+      properties: {
+        flashcards: {
+          type: 'array',
+          minItems,
+          items: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['front', 'back'],
+            properties: {
+              front: { type: 'string', description: 'Question or prompt' },
+              back: { type: 'string', description: 'Answer or explanation' }
+            }
+          }
+        }
+      }
+    }
+  })
 }
 
 export const outputShapes: Record<OutputShapeType, OutputShapeDefinition> = {

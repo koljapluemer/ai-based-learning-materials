@@ -16,7 +16,7 @@ export interface GenerateResult {
   rawText: string
 }
 
-const DEFAULT_MODEL = 'gpt-4.1-mini'
+const DEFAULT_MODEL = 'gpt-4o-mini'
 const MAX_MATERIAL_LENGTH = 6000
 
 let pdfjsPromise: Promise<PdfJsModule> | null = null
@@ -151,6 +151,15 @@ export const generateLearningMaterials = async ({
 
   const messages = await buildMessages(prompt, materials)
 
+  // Use dynamic schema if available, otherwise fall back to static schema
+  const jsonSchema =
+    outputShapeDefinition.createJsonSchema && prompt.minFlashcards
+      ? outputShapeDefinition.createJsonSchema(prompt.minFlashcards)
+      : outputShapeDefinition.jsonSchema
+
+  console.log('🔍 DEBUG: prompt.minFlashcards =', prompt.minFlashcards)
+  console.log('🔍 DEBUG: jsonSchema =', JSON.stringify(jsonSchema, null, 2))
+
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -162,7 +171,7 @@ export const generateLearningMaterials = async ({
       messages,
       response_format: {
         type: 'json_schema',
-        json_schema: outputShapeDefinition.jsonSchema
+        json_schema: jsonSchema
       }
     })
   })
