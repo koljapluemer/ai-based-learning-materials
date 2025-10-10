@@ -10,6 +10,8 @@ export interface OutputShapeDefinition {
   }
   guidance: string
   createJsonSchema?: (minItems: number) => { name: string; schema: unknown }
+  canBeDownloadedAsCsv: boolean
+  convertToCsv?: (data: unknown) => string
 }
 
 const simpleFlashcards: OutputShapeDefinition = {
@@ -65,7 +67,26 @@ const simpleFlashcards: OutputShapeDefinition = {
         }
       }
     }
-  })
+  }),
+  canBeDownloadedAsCsv: true,
+  convertToCsv: (data: unknown) => {
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid flashcard data')
+    }
+
+    const rows = data.map((item) => {
+      const flashcard = item as { front: string; back: string }
+      const escapeCsv = (str: string) => {
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          return `"${str.replace(/"/g, '""')}"`
+        }
+        return str
+      }
+      return `${escapeCsv(flashcard.front)},${escapeCsv(flashcard.back)}`
+    })
+
+    return ['Front,Back', ...rows].join('\n')
+  }
 }
 
 export const outputShapes: Record<OutputShapeType, OutputShapeDefinition> = {

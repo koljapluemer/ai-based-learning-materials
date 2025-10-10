@@ -26,6 +26,7 @@ const generating = ref(false)
 const selectedPromptId = ref<string>('')
 const selectedMaterialIds = ref<string[]>([])
 const rawResult = ref<string | null>(null)
+const resultJson = ref<unknown>(null)
 
 const selectedPrompt = computed(() =>
   prompts.value.find((prompt) => prompt.id === selectedPromptId.value)
@@ -90,9 +91,29 @@ const downloadResult = () => {
   URL.revokeObjectURL(link.href)
 }
 
+const downloadCsv = () => {
+  if (!resultJson.value || !outputShape.value?.convertToCsv) {
+    return
+  }
+  try {
+    const csvContent = outputShape.value.convertToCsv(resultJson.value)
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = 'learning-materials.csv'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(link.href)
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'CSV conversion failed'
+  }
+}
+
 const generate = async () => {
   error.value = null
   rawResult.value = null
+  resultJson.value = null
   const apiKey = settings.value?.openAIApiKey ?? ''
 
   if (!selectedPrompt.value) {
@@ -107,6 +128,7 @@ const generate = async () => {
       prompt: selectedPrompt.value,
       materials: selectedMaterials.value
     })
+    resultJson.value = result.json
     rawResult.value = JSON.stringify(result.json, null, 2)
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Generation failed'
@@ -267,15 +289,25 @@ onMounted(async () => {
           <pre v-else class="scrollbar-thin h-full overflow-auto whitespace-pre-wrap break-words text-xs text-base-content/80"><code>{{ rawResult }}</code></pre>
         </div>
 
-        <button
-          v-if="rawResult"
-          class="btn btn-outline gap-2"
-          type="button"
-          @click="downloadResult"
-        >
-          <Download class="h-4 w-4" />
-          Download JSON
-        </button>
+        <div v-if="rawResult" class="flex gap-2">
+          <button
+            class="btn btn-outline flex-1 gap-2"
+            type="button"
+            @click="downloadResult"
+          >
+            <Download class="h-4 w-4" />
+            Download JSON
+          </button>
+          <button
+            v-if="outputShape?.canBeDownloadedAsCsv"
+            class="btn btn-outline flex-1 gap-2"
+            type="button"
+            @click="downloadCsv"
+          >
+            <Download class="h-4 w-4" />
+            Download CSV
+          </button>
+        </div>
       </section>
     </div>
   </section>
