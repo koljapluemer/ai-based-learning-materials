@@ -118,6 +118,20 @@ const summariseMaterial = async (material: MaterialRecord) => {
 }
 
 const buildMessages = async (prompt: PromptRecord, materials: MaterialRecord[]) => {
+  if (!materials.length) {
+    return [
+      {
+        role: 'system',
+        content:
+          'You are an assistant that creates learning materials based on user prompts. Always follow the requested output shape strictly.'
+      },
+      {
+        role: 'user',
+        content: prompt.content
+      }
+    ]
+  }
+
   const summaries = await Promise.all(materials.map((material) => summariseMaterial(material)))
   return [
     {
@@ -140,9 +154,6 @@ export const generateLearningMaterials = async ({
 }: GenerateParams): Promise<GenerateResult> => {
   if (!apiKey) {
     throw new Error('Missing API key')
-  }
-  if (!materials.length) {
-    throw new Error('Select at least one material')
   }
   const outputShapeDefinition = getOutputShapeDefinition(prompt.outputShape)
   if (!outputShapeDefinition) {

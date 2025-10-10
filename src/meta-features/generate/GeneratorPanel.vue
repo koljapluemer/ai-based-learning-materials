@@ -205,13 +205,13 @@ onMounted(async () => {
         </section>
 
         <section class="rounded-box bg-base-100 p-6 shadow-sm">
-          <h2 class="mb-4 text-lg font-semibold text-base-content">Materials</h2>
+          <h2 class="mb-4 text-lg font-semibold text-base-content">Materials (optional)</h2>
 
-          <div v-if="!materials.length" class="alert alert-warning">
-            <span>Upload materials on the Materials page before generating.</span>
+          <div v-if="!materials.length" class="alert alert-info">
+            <span>No materials available. You can generate based on the prompt alone, or upload materials on the Materials page.</span>
           </div>
 
-          <ul class="flex flex-col gap-3">
+          <ul v-else class="flex flex-col gap-3">
             <li
               v-for="material in materials"
               :key="material.id"
@@ -242,7 +242,7 @@ onMounted(async () => {
         <div class="space-y-4">
           <h2 class="text-lg font-semibold text-base-content">Generate</h2>
           <p class="text-sm text-base-content/70">
-            The AI reads the prompt and selected materials to generate JSON output you can copy or download.
+            The AI reads the prompt and any selected materials to generate JSON output you can copy or download.
           </p>
 
           <button
@@ -264,7 +264,7 @@ onMounted(async () => {
           <p v-if="!rawResult" class="text-sm text-base-content/50">
             Generated JSON will appear here.
           </p>
-          <pre v-else class="scrollbar-thin h-full overflow-auto text-xs text-base-content/80"><code>{{ rawResult }}</code></pre>
+          <pre v-else class="scrollbar-thin h-full overflow-auto whitespace-pre-wrap break-words text-xs text-base-content/80"><code>{{ rawResult }}</code></pre>
         </div>
 
         <button
