@@ -2,7 +2,7 @@ import Dexie from 'dexie'
 import type { Table } from 'dexie'
 import dexieCloud from 'dexie-cloud-addon'
 
-export type OutputShapeType = 'simple-flashcards'
+export type OutputShapeType = 'simple-flashcards' | 'memorization-cafe-flashcards'
 
 export interface MaterialRecord {
   id: string

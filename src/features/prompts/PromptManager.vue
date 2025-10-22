@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { PromptRecord } from '../../entities/app-db'
+import type { OutputShapeType, PromptRecord } from '../../entities/app-db'
 import type { PromptRepository } from '../../entities/prompts/prompts'
 import { Edit2, Plus, Trash2 } from 'lucide-vue-next'
+import { outputShapes } from '../../meta-features/generate/output-shapes'
 
 const props = defineProps<{
   repository: PromptRepository
@@ -13,22 +14,35 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const saving = ref(false)
 const editingId = ref<string | null>(null)
-const form = ref({
+
+interface FormState {
+  name: string
+  content: string
+  outputShape: OutputShapeType
+  minFlashcards: number
+}
+
+const createDefaultFormState = (): FormState => ({
   name: '',
   content: '',
   outputShape: 'simple-flashcards',
   minFlashcards: 5
 })
 
+const form = ref<FormState>(createDefaultFormState())
+
 const hasPrompts = computed(() => prompts.value.length > 0)
+const shapeOptions = computed(() => Object.values(outputShapes))
+const shapeFieldPreview: Record<OutputShapeType, string> = {
+  'simple-flashcards': '{front, back}',
+  'memorization-cafe-flashcards':
+    '{front, back, practiceAsFlashcard, practiceAsPrompt, practiceReverse}'
+}
+const selectedOutputShape = computed(() => outputShapes[form.value.outputShape])
+const selectedFieldPreview = computed(() => shapeFieldPreview[form.value.outputShape])
 
 const resetForm = () => {
-  form.value = {
-    name: '',
-    content: '',
-    outputShape: 'simple-flashcards',
-    minFlashcards: 5
-  }
+  form.value = createDefaultFormState()
   editingId.value = null
 }
 
@@ -56,14 +70,14 @@ const submitForm = async () => {
       await props.repository.update(editingId.value, {
         name: form.value.name.trim(),
         content: form.value.content.trim(),
-        outputShape: form.value.outputShape as 'simple-flashcards',
+        outputShape: form.value.outputShape,
         minFlashcards: form.value.minFlashcards
       })
     } else {
       await props.repository.create({
         name: form.value.name.trim(),
         content: form.value.content.trim(),
-        outputShape: form.value.outputShape as 'simple-flashcards',
+        outputShape: form.value.outputShape,
         minFlashcards: form.value.minFlashcards
       })
     }
@@ -202,10 +216,19 @@ onMounted(async () => {
             <span class="label-text">Output shape</span>
           </label>
           <select v-model="form.outputShape" class="select select-bordered">
-            <option value="simple-flashcards">Simple Flashcards</option>
+            <option
+              v-for="shape in shapeOptions"
+              :key="shape.id"
+              :value="shape.id"
+            >
+              {{ shape.label }}
+            </option>
           </select>
-          <p class="mt-2 text-xs text-base-content/70">
-            Generates an array of flashcards with <code>{"{"}front, back{"}"}</code> fields.
+          <p v-if="selectedOutputShape" class="mt-2 text-xs text-base-content/70">
+            {{ selectedOutputShape.description }}
+            <span class="mt-1 block font-mono text-[11px] text-base-content/60">
+              {{ selectedFieldPreview }}
+            </span>
           </p>
         </div>
         <div class="form-control">
