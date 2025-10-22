@@ -87,7 +87,7 @@ const simpleFlashcards: OutputShapeDefinition = {
       return `${escapeCsvValue(flashcard.front)},${escapeCsvValue(flashcard.back)}`
     })
 
-    return ['Front,Back', ...rows].join('\n')
+    return ['front,back', ...rows].join('\n')
   }
 }
 
@@ -213,7 +213,7 @@ const memorizationCafeFlashcards: OutputShapeDefinition = {
     })
 
     return [
-      'Front,Back,PracticeAsFlashcard,PracticeAsPrompt,PracticeReverse',
+      'front,back,practiceAsFlashcard,practiceAsPrompt,practiceReverse',
       ...rows
     ].join('\n')
   }
